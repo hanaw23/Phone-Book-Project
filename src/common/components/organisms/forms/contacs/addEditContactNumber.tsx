@@ -41,6 +41,9 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
     } else {
       alert(phoneNumbers.map((phone) => phone.phoneNumber));
     }
+    setPhoneNumbers([{ id: 1, phoneNumber: "" }]);
+    setFirstName("");
+    setLastName("");
   };
 
   //   === HTML ===
@@ -91,10 +94,10 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           position: absolute;
           margin-top: 3rem;
           background-color: #7caa2d;
-          height: max-content;
+          height: ${phoneNumbers.length > 2 ? "100%" : "62%"};
           width: 100%;
           border-radius: 2rem 2rem 0 0;
-          padding-bottom: 3.5rem;
+          margin-bottom: 0;
         `}
       >
         <div
@@ -131,7 +134,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                 `}
               >
                 <InputComponent
-                  label="Phone Number"
+                  label={`Phone Number ${phone.id}`}
                   placeholder="Ex. +62812347xxxx"
                   required={true}
                   value={phone.phoneNumber}
