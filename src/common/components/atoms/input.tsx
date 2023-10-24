@@ -17,9 +17,21 @@ const InputComponent = (props: InputComponentProps) => {
             font-size: 0.8rem;
             margin-left: 2px;
             margin-bottom: 2px;
+            width: 100%;
+            background-color: transparent;
+            font-weight: bold;
           `}
         >
-          {props.label} {props.required && <span>*</span>}
+          {props.label}{" "}
+          {props.required && (
+            <span
+              className={css`
+                background-color: transparent;
+              `}
+            >
+              *
+            </span>
+          )}
         </div>
         <input
           className={css`
@@ -29,6 +41,7 @@ const InputComponent = (props: InputComponentProps) => {
             border-radius: 5px;
             color: white;
             outline: none;
+            border: none;
           `}
           placeholder={props.placeholder}
           autoComplete="off"
