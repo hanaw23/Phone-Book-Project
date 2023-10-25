@@ -9,11 +9,12 @@ const ButtonComponent = (props: ButtonComponentProps) => {
     background-color: ${props.backgroundColor};
     font-size: ${props.fontSize};
     border-radius: ${props.borderRadius ?? "0"};
-    border: none;
+    border: ${props.border ?? "none"};
     color: ${props.color};
     cursor: pointer;
     font-weight: ${props.fontWeight};
-    padding: 3px;
+    padding: ${props.padding ?? "3px"};
+    width: ${props.width};
   `;
 
   // === HTML ===

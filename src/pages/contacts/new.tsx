@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 import AddEditContactNumber from "../../common/components/organisms/forms/contacs/addEditContactNumber";
 
@@ -7,7 +7,7 @@ const NewContact = () => {
 
   //   === FUNCTIONS ===
   const cancelAddNew = () => {
-    router.push("/contacts", { scroll: false });
+    router.push("/contacts");
   };
 
   //   === HTML ===

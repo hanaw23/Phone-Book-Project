@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 const InitPage = () => {
   const router = useRouter();
   useEffect(() => {
-    router.push("/contacts", { scroll: false });
+    router.push("/contacts");
   }, []);
 };
 

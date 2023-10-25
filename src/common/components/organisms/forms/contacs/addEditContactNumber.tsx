@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import ButtonComponent from "../../../atoms/button";
 import InputComponent from "../../../atoms/input";
@@ -57,11 +57,21 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             justify-content: space-between;
             margin-top: 1rem;
             margin-bottom: 1rem;
-            margin-left: 2rem;
-            margin-right: 2rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
           `}
         >
-          <ButtonComponent label="Cancel" type="button" onClick={props.cancel} color="#BFBFBF" fontWeight="bold" />
+          <span>
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              className={css`
+                color: #bfbfbf;
+                margin-right: 2px;
+                background-color: transparent;
+              `}
+            />
+            <ButtonComponent label="Back" type="button" onClick={props.cancel} color="#BFBFBF" fontWeight="bold" />
+          </span>
 
           <h3>{props.title}</h3>
 

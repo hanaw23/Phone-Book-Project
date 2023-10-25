@@ -4,5 +4,6 @@ export interface InputComponentProps {
   required?: boolean;
   value: string;
   componentClassName?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  iconPrefix?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }

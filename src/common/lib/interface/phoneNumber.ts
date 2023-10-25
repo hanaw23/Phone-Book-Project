@@ -8,11 +8,12 @@ export interface Phone {
 }
 
 export interface InputPhoneNumber {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   phones: Phone[];
 }
 
 export interface ContactPhoneNumber extends InputPhoneNumber {
-  createdAt: string;
+  id: number;
+  created_at: string;
 }
