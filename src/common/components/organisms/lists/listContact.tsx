@@ -1,18 +1,36 @@
-import { css } from "@emotion/css";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-import { contactListData } from "../../../lib/data/contactData";
+import { css } from "@emotion/css";
+
+import { useGetContactList } from "../../../../pages/store/contact.store";
+import { ContactPhoneNumber } from "@/common/lib/interface/phoneNumber";
 
 const ListContacts = () => {
   const router = useRouter();
 
+  // === VARIABLES ===
+  const [take, setTake] = useState(10);
+  const [skip, setSkip] = useState(0);
+  const [contactListData, setContactListData] = useState([] as ContactPhoneNumber[]);
+
   //   === FUNCTIONS ===
+  const fetchContactList = useGetContactList(take, skip);
+
+  // onMounted
+  useEffect(() => {
+    if (fetchContactList.error) {
+      alert(fetchContactList.error);
+    } else if (fetchContactList.data) {
+      setContactListData(fetchContactList.data.contact);
+    }
+  }, [fetchContactList]);
+
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
     return [firstName[0], lastName[0]].join("").toUpperCase();
   };
-
   const redirectToDetailContact = (contactId: number) => {
-    router.push(`/contacts/${contactId}`, { scroll: false });
+    router.push(`/contacts/${contactId}`);
   };
 
   return (
