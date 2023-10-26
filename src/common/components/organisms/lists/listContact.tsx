@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-
 import { css } from "@emotion/css";
 
-import { useGetContactList } from "../../../../pages/store/contact.store";
-import { ContactPhoneNumber } from "@/common/lib/interface/phoneNumber";
+import { useGetContactList } from "../../../../../lib/service/contact.store";
+import { ContactPhoneNumber } from "../../../../../lib/interface/phoneNumber";
 
 const ListContacts = () => {
   const router = useRouter();

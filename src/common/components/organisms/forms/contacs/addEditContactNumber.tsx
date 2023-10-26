@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { ChangeEvent, SetStateAction, useState } from "react";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import ButtonComponent from "../../../atoms/button";
 import InputComponent from "../../../atoms/input";
-import { type PhoneNumber } from "../../../../lib/interface/phoneNumber";
+import { type PhoneNumber } from "../../../../../../lib/interface/phoneNumber";
 
 const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; title: string }) => {
   // === VARIABLES ===
@@ -117,14 +117,21 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             background-color: transparent;
           `}
         >
-          <InputComponent label="First Name" placeholder="Type first name" required={true} value={firstName} componentClassName=" background-color: transparent;" onChange={(e) => setFirstName(e.target.value)} />
+          <InputComponent
+            label="First Name"
+            placeholder="Type first name"
+            required={true}
+            value={firstName}
+            componentClassName=" background-color: transparent;"
+            onChange={(e: { target: { value: SetStateAction<string> } }) => setFirstName(e.target.value)}
+          />
           <InputComponent
             label="Last Name"
             placeholder="Type last name"
             required={true}
             value={lastName}
             componentClassName="margin-top: 10px; background-color: transparent; margin-bottom: 2.5rem;"
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e: { target: { value: SetStateAction<string> } }) => setLastName(e.target.value)}
           />
 
           {phoneNumbers.map((phone) => (
@@ -149,7 +156,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                   required={true}
                   value={phone.phoneNumber}
                   componentClassName="margin-top: 10px; width: 100%; background-color: transparent"
-                  onChange={(e) => handleAddPhoneNumber(e, phone.id)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleAddPhoneNumber(e, phone.id)}
                 />
               </div>
               {phone.id === 1 && (
