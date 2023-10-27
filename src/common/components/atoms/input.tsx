@@ -1,8 +1,5 @@
 import { css } from "@emotion/css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
-
-import { type InputComponentProps } from "../../lib/interface/atoms/input";
+import { type InputComponentProps } from "../../../../lib/interface/atoms/input.interface";
 
 // VARIABLES
 const InputComponent = (props: InputComponentProps) => {
