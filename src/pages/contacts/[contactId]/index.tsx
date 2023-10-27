@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -6,9 +6,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import ButtonComponent from "@/common/components/atoms/button";
+import DeleteContactConfirmation from "@/common/components/organisms/confirmations/deleteContactNumber";
+import Toast from "@/common/components/organisms/toast";
+import Modal from "@/common/components/organisms/modal";
 
-import { queryGetContactDetailById } from "@/gql/graphql";
+import { queryGetContactDetailById, mutationDeleteContactById } from "@/gql/graphql";
 import { Contact } from "@/graphql/graphql";
+import { SeverityToast } from "@/interface/toast.interface";
 
 const DetailContact = () => {
   const router = useRouter();
@@ -20,22 +24,51 @@ const DetailContact = () => {
       id: contactId,
     },
   });
+  const [deleteContactById] = useMutation(mutationDeleteContactById);
 
   // === VARIABLES ===
   const [contactDetail, setContactDetail] = useState<Contact | null>(null);
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isOpenToast, setIsOpenToast] = useState(false);
+  const [toastSuccess, setToastsuccess] = useState(false);
+  const [isOpenToastFetchData, setIsOpenToastFetchData] = useState(false);
+  const [_, setToastsuccessFetchData] = useState(false);
 
   // === FUNCTIONS ===
   // onMounted
   useEffect(() => {
     if (error) {
-      console.log(error);
+      setToastsuccessFetchData(false);
+      setIsOpenToastFetchData(true);
     } else if (data) {
       setContactDetail(data.contact_by_pk as Contact);
     }
   }, [data, error]);
 
+  // Submit Delete Contact
+  const submitDeleteContact = async () => {
+    const response = await deleteContactById({
+      variables: {
+        id: contactId,
+      },
+    });
+
+    if (response.errors) {
+      setToastsuccess(false);
+    } else if (response.data) {
+      setToastsuccess(true);
+      redirectToContactList();
+    }
+
+    setIsOpenToast(true);
+  };
+
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
     return [firstName[0], lastName[0]].join("").toUpperCase();
+  };
+
+  const openDeleteModal = () => {
+    setIsOpenModal(true);
   };
 
   const redirectToDetailContact = () => {
@@ -149,11 +182,28 @@ const DetailContact = () => {
                 margin-right: 1rem;
               `}
             >
-              <ButtonComponent label="Delete Contact" backgroundColor="#4c4a4a" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={redirectToDetailContact} />
+              <ButtonComponent label="Delete Contact" backgroundColor="#4c4a4a" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={openDeleteModal} />
             </div>
           </div>
         </div>
       )}
+      {/* Delete Confirmation */}
+      <Modal
+        isOpen={isOpenModal}
+        close={() => setIsOpenModal(false)}
+        title="Delete Confirmation"
+        content={<DeleteContactConfirmation message=" Are you sure want to delete this contact?" close={() => setIsOpenModal(false)} submitDelete={submitDeleteContact} />}
+      />
+      {/* Toast Handle Delete */}
+      <Toast
+        isOpen={isOpenToast}
+        summary={toastSuccess ? "Success" : "Error"}
+        detail={toastSuccess ? "Contact is successfully deleted" : "Failed to delete contact !"}
+        severity={toastSuccess ? SeverityToast.SUCCESS : SeverityToast.ERROR}
+        close={() => setIsOpenToast(false)}
+      />
+      {/* Toast Handle Error Fetch Data */}
+      <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch contact !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
     </>
   );
 };

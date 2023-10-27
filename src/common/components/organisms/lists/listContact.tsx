@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { css } from "@emotion/css";
 
+import Toast from "@/common/components/organisms/toast";
+
 import { queryGetContactList } from "@/gql/graphql";
 import { Contact } from "@/graphql/graphql";
+import { SeverityToast } from "@/interface/toast.interface";
 
 const ListContacts = () => {
   const router = useRouter();
@@ -17,11 +20,15 @@ const ListContacts = () => {
   const [skip, setSkip] = useState(0);
   const [contactListData, setContactListData] = useState<Contact[]>([]);
 
+  const [isOpenToastFetchData, setIsOpenToastFetchData] = useState(false);
+  const [_, setToastsuccessFetchData] = useState(false);
+
   //   === FUNCTIONS ===
   // onMounted
   useEffect(() => {
     if (error) {
-      console.log(error);
+      setToastsuccessFetchData(false);
+      setIsOpenToastFetchData(true);
     } else if (data) {
       setContactListData([...data.contact]);
     }
@@ -75,6 +82,9 @@ const ListContacts = () => {
           </p>
         </div>
       ))}
+
+      {/* Toast Handle Error Fetch Data */}
+      <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to delete contact !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
     </div>
   );
 };

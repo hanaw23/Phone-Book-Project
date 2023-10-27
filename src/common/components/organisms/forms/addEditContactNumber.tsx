@@ -5,11 +5,13 @@ import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
+import Toast from "@/common/components/organisms/toast";
 import ButtonComponent from "@/common/components/atoms/button";
 import InputComponent from "@/common/components/atoms/input";
 
 import { Phone_Insert_Input } from "@/graphql/graphql";
 import { mutationAddContactWithPhones } from "@/gql/graphql";
+import { SeverityToast } from "@/interface/toast.interface";
 
 const WarningMessage = (props: { message: string }) => {
   return (
@@ -44,6 +46,9 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   const [isValidLastName, setIsValidLastName] = useState<Boolean>(true);
   const [isValidLastNameChar, setIsValidLastNameChar] = useState<Boolean>(true);
   const [isValidPhoneNumbers, setIsValidPhoneNumbers] = useState<Boolean>(true);
+
+  const [isOpenToast, setIsOpenToast] = useState(false);
+  const [toastSuccess, setToastsuccess] = useState(false);
 
   // === FUNCTIONS ===
   const handleAddMorePhones = () => {
@@ -117,19 +122,25 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           },
         });
         if (response.errors) {
-          console.log(response.errors);
+          setToastsuccess(false);
         } else if (response.data) {
+          setToastsuccess(true);
           router.push(`/contacts/${response.data.insert_contact.returning[0].id}`);
         }
       }
       setPhoneNumbers([{ id: 1, number: "" }]);
       setFirstName("");
       setLastName("");
+      setIsOpenToast(true);
     } else {
       setIsValidFirstName(false);
       setIsValidLastName(false);
       setIsValidPhoneNumbers(false);
     }
+  };
+
+  const getInitialFirstLastName = (firstName: string, lastName: string) => {
+    return [firstName[0], lastName[0]].join("").toUpperCase();
   };
 
   //   === HTML ===
@@ -174,14 +185,33 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             justify-content: center;
           `}
         >
-          <img
-            src="/profile.png"
-            className={css`
-              width: 35%;
-              height: 35%;
-              border-radius: 50%;
-            `}
-          />
+          {firstName === "" || lastName === "" ? (
+            <img
+              src={"/profile.png"}
+              className={css`
+                width: 35%;
+                height: 35%;
+                border-radius: 50%;
+              `}
+              alt="profile"
+            />
+          ) : (
+            <div
+              className={css`
+                border: 2px solid #bfbfbf;
+                border-radius: 50%;
+                width: 150px;
+                height: 150px;
+                margin: auto;
+                text-align: center;
+                font-size: 4rem;
+                padding-top: 1.5rem;
+                background-color: #bfbfbf;
+              `}
+            >
+              {getInitialFirstLastName(firstName as string, lastName as string)}
+            </div>
+          )}
         </div>
       </div>
 
@@ -285,6 +315,15 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           ))}
         </div>
       </div>
+
+      {/* Toast */}
+      <Toast
+        isOpen={isOpenToast}
+        summary={toastSuccess ? "Success" : "Error"}
+        detail={toastSuccess ? `Contact is successfully ${props.isEdit ? "updated" : "created"}` : `Failed to ${props.isEdit ? "updat" : "create"} contact !`}
+        severity={toastSuccess ? SeverityToast.SUCCESS : SeverityToast.ERROR}
+        close={() => setIsOpenToast(false)}
+      />
     </>
   );
 };
