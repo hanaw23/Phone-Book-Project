@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import ButtonComponent from "@/common/components/atoms/button";
-import { useGetContactDetailById } from "../../../../lib/service/contact.store";
-import { ContactPhoneNumber } from "../../../../lib/interface/phoneNumber";
+import { useGetContactDetailById } from "@/service/contact.store";
+import { ContactPhoneNumber } from "@/interface/phoneNumber";
 
 const DetailContact = () => {
   const router = useRouter();

@@ -2,10 +2,9 @@ import { ChangeEvent, SetStateAction, useState } from "react";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
-
-import ButtonComponent from "../../../atoms/button";
-import InputComponent from "../../../atoms/input";
-import { type PhoneNumber } from "../../../../../../lib/interface/phoneNumber";
+import ButtonComponent from "@/common/components/atoms/button";
+import InputComponent from "@/common/components/atoms/input";
+import { type PhoneNumber } from "@/interface/phoneNumber";
 
 const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; title: string }) => {
   // === VARIABLES ===

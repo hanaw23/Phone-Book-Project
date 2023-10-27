@@ -1,5 +1,5 @@
-import { mutationAddContactWithPhones, mutationEditContactById, mutationDeleteContactById } from "../graphql/mutation/contact";
-import { queryGetContactList, queryGetContactDetailById } from "../graphql/query/contact";
+import { mutationAddContactWithPhones, mutationEditContactById, mutationDeleteContactById } from "@/graphql/mutation/contact";
+import { queryGetContactList, queryGetContactDetailById } from "@/graphql/query/contact";
 import { useMutation, useQuery } from "@apollo/client";
 
 // Fetch Queries

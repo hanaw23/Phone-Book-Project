@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { type InputComponentProps } from "../../../../lib/interface/atoms/input.interface";
+import { type InputComponentProps } from "@/interface/atoms/input.interface";
 
 // VARIABLES
 const InputComponent = (props: InputComponentProps) => {

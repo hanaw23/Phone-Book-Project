@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
-
-import AddEditContactNumber from "../../common/components/organisms/forms/contacs/addEditContactNumber";
+import AddEditContactNumber from "@/common/components/organisms/forms/contacs/addEditContactNumber";
 
 const NewContact = () => {
   const router = useRouter();
