@@ -19,6 +19,7 @@ const InputComponent = (props: InputComponentProps) => {
             width: 100%;
             background-color: transparent;
             font-weight: bold;
+            color: ${props.colorLabel};
           `}
         >
           {props.label}{" "}
@@ -35,12 +36,11 @@ const InputComponent = (props: InputComponentProps) => {
         <input
           className={css`
             width: 100%;
-            border: 1px solid #bfbfbf;
             padding: 0.5rem;
             border-radius: 5px;
             color: white;
             outline: none;
-            border: none;
+            border: ${props.border};
           `}
           placeholder={props.placeholder}
           autoComplete="off"

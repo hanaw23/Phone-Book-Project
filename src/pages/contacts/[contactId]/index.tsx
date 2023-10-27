@@ -1,30 +1,38 @@
+import { useQuery } from "@apollo/client";
 import { css } from "@emotion/css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+
 import ButtonComponent from "@/common/components/atoms/button";
-import { useGetContactDetailById } from "@/service/contact.store";
-import { ContactPhoneNumber } from "@/interface/phoneNumber";
+
+import { queryGetContactDetailById } from "@/gql/graphql";
+import { Contact } from "@/graphql/graphql";
 
 const DetailContact = () => {
   const router = useRouter();
   const { contactId } = router.query;
 
+  // === GRAPHQL ===
+  const { data, error } = useQuery(queryGetContactDetailById, {
+    variables: {
+      id: contactId,
+    },
+  });
+
   // === VARIABLES ===
-  const [contactDetail, setContactDetail] = useState<ContactPhoneNumber | null>(null);
+  const [contactDetail, setContactDetail] = useState<Contact | null>(null);
 
-  //   === FUNCTIONS ===
-  const fetchContactDetail = useGetContactDetailById(Number(contactId));
-
+  // === FUNCTIONS ===
   // onMounted
   useEffect(() => {
-    if (fetchContactDetail.error) {
-      alert(fetchContactDetail.error);
-    } else if (fetchContactDetail.data) {
-      setContactDetail(fetchContactDetail.data.contact_by_pk as ContactPhoneNumber);
+    if (error) {
+      console.log(error);
+    } else if (data) {
+      setContactDetail(data.contact_by_pk as Contact);
     }
-  }, [fetchContactDetail]);
+  }, [data, error]);
 
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
     return [firstName[0], lastName[0]].join("").toUpperCase();

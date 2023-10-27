@@ -1,6 +1,6 @@
-import { mutationAddContactWithPhones, mutationEditContactById, mutationDeleteContactById } from "@/graphql/mutation/contact";
-import { queryGetContactList, queryGetContactDetailById } from "@/graphql/query/contact";
+import { mutationAddContactWithPhones, mutationEditContactById, mutationDeleteContactById, queryGetContactList, queryGetContactDetailById } from "@/gql/graphql";
 import { useMutation, useQuery } from "@apollo/client";
+import type { Contact_Set_Input, Phone_Insert_Input } from "@/graphql/graphql";
 
 // Fetch Queries
 export const useGetContactList = (limit: number, offset: number) => {
@@ -19,13 +19,21 @@ export const useGetContactDetailById = (id: number) => {
 };
 
 // Fetch Mutations
-export const useAddContactWithPhones = () => {
-  const [addContactWithPhones, response] = useMutation(mutationAddContactWithPhones);
+export const useAddContactWithPhones = (first_name: string, last_name: string, phones: Phone_Insert_Input[]) => {
+  const [addContactWithPhones, response] = useMutation(mutationAddContactWithPhones, {
+    variables: {
+      first_name,
+      last_name,
+      phones,
+    },
+  });
 
   return { addContactWithPhones, response };
 };
-export const useEditContactById = () => {
-  const [editContactById, response] = useMutation(mutationEditContactById);
+export const useEditContactById = (id: number, contact: Contact_Set_Input) => {
+  const [editContactById, response] = useMutation(mutationEditContactById, {
+    variables: { id, _set: contact },
+  });
 
   return { editContactById, response };
 };

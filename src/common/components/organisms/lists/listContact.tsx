@@ -1,28 +1,31 @@
+import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { css } from "@emotion/css";
-import { useGetContactList } from "@/service/contact.store";
-import { ContactPhoneNumber } from "@/interface/phoneNumber";
+
+import { queryGetContactList } from "@/gql/graphql";
+import { Contact } from "@/graphql/graphql";
 
 const ListContacts = () => {
   const router = useRouter();
 
+  // === GRAPHQL ===
+  const { data, error } = useQuery(queryGetContactList);
+
   // === VARIABLES ===
-  const [take, setTake] = useState(10);
+  const [take, setTake] = useState(100);
   const [skip, setSkip] = useState(0);
-  const [contactListData, setContactListData] = useState([] as ContactPhoneNumber[]);
+  const [contactListData, setContactListData] = useState<Contact[]>([]);
 
   //   === FUNCTIONS ===
-  const fetchContactList = useGetContactList(take, skip);
-
   // onMounted
   useEffect(() => {
-    if (fetchContactList.error) {
-      alert(fetchContactList.error);
-    } else if (fetchContactList.data) {
-      setContactListData(fetchContactList.data.contact);
+    if (error) {
+      console.log(error);
+    } else if (data) {
+      setContactListData([...data.contact]);
     }
-  }, [fetchContactList]);
+  }, [data, error]);
 
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
     return [firstName[0], lastName[0]].join("").toUpperCase();
@@ -37,9 +40,9 @@ const ListContacts = () => {
         overflow-y: auto;
       `}
     >
-      {contactListData.map((contact) => (
+      {contactListData.map((contact, index) => (
         <div
-          key={contact.id}
+          key={index}
           className={css`
             display: flex;
             gap: 1rem;

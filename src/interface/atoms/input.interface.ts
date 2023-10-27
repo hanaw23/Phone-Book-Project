@@ -5,5 +5,7 @@ export interface InputComponentProps {
   value: string;
   componentClassName?: string;
   iconPrefix?: boolean;
+  colorLabel?: string;
+  border?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
