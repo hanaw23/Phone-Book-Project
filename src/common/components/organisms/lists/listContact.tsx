@@ -17,9 +17,11 @@ const ListContacts = () => {
 
   // === VARIABLES ===
   const take = 10;
-  // const scrollContact = useRef<HTMLDivElement>(null);
   const [skip, setSkip] = useState(0);
   const [contactListData, setContactListData] = useState<Contact[]>([]);
+
+  const scrollContactRef = useRef<HTMLDivElement>(null);
+  const [scrollElementVisible, setScrollElementVisible] = useState<boolean>(false);
 
   const [textSearch, setTextSearch] = useState<string>("");
   const [debounce, setDebounce] = useState<string>("");
@@ -67,11 +69,24 @@ const ListContacts = () => {
   }, [textSearch]);
 
   useEffect(() => {
+    const observer = new IntersectionObserver((enteries) => {
+      const entry = enteries[0];
+      setScrollElementVisible(() => entry.isIntersecting);
+    });
+
+    if (scrollContactRef.current) observer.observe(scrollContactRef.current);
+
+    if (scrollElementVisible) {
+      setSkip(skip + take);
+    }
+  }, [scrollElementVisible]);
+
+  useEffect(() => {
     if (error) {
       setToastsuccessFetchData(false);
       setIsOpenToastFetchData(true);
     } else if (data) {
-      setContactListData([...data.contact]);
+      setContactListData([...contactListData, ...data.contact]);
     }
   }, [data, error, skip, debounce]);
 
@@ -163,15 +178,7 @@ const ListContacts = () => {
           </div>
         ))}
 
-        <div
-          className={css`
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-          `}
-        >
-          <ButtonComponent label="Load More" type="button" backgroundColor="#4c4a4a" onClick={() => setSkip((current) => current + take)} color="white" fontWeight="bold" width="100%" padding="1rem" />
-        </div>
+        <div ref={scrollContactRef} />
 
         {/* Toast Handle Error Fetch Data */}
         <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch list contacts !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
