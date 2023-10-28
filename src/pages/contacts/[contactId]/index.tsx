@@ -9,6 +9,7 @@ import ButtonComponent from "@/common/components/atoms/button";
 import DeleteContactConfirmation from "@/common/components/organisms/confirmations/deleteContactNumber";
 import Toast from "@/common/components/organisms/toast";
 import Modal from "@/common/components/organisms/modal";
+import InitialFirstLastName from "@/common/utils/initialName";
 
 import { ContactContext } from "@/context/detailContactContext";
 import { queryGetContactDetailById, mutationDeleteContactById } from "@/gql/graphql";
@@ -62,11 +63,6 @@ const DetailContact = () => {
     }
 
     setIsOpenToast(true);
-  };
-
-  const getInitialFirstLastName = (firstName: string, lastName: string) => {
-    if (!firstName || !lastName) return "";
-    return [firstName[0], lastName[0]].join("").toUpperCase();
   };
 
   const openDeleteModal = () => {
@@ -127,7 +123,7 @@ const DetailContact = () => {
                 background-color: #bfbfbf;
               `}
             >
-              {getInitialFirstLastName(contactDetail.first_name, contactDetail.last_name)}
+              {InitialFirstLastName(contactDetail.first_name, contactDetail.last_name)}
             </div>
 
             <div
