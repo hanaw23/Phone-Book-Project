@@ -9,9 +9,13 @@ const Toast = (props: ToastProps) => {
   // === FUNCTIONS ===
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         close();
       }, 3000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }
   }, [close, isOpen]);
 
