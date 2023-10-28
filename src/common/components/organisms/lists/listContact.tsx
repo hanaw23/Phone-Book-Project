@@ -222,6 +222,30 @@ const ListContacts = () => {
             </div>
           </>
         ))}
+        {loadingData && (
+          <div
+            className={css`
+              margin-top: 50vh;
+              text-align: center;
+              font-weight: semi-bold;
+              font-size: 1rem;
+            `}
+          >
+            Loading...
+          </div>
+        )}
+        {contactListData.length === 0 && (
+          <div
+            className={css`
+              margin-top: 50vh;
+              text-align: center;
+              font-weight: semi-bold;
+              font-size: 1rem;
+            `}
+          >
+            No Data
+          </div>
+        )}
 
         {/* Scroll Element intersection */}
         {!loadingData && <div ref={scrollContactRef} />}
