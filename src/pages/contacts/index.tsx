@@ -39,8 +39,8 @@ const Contacts = () => {
               background-color: #7caa2d;
               border-radius: 50%;
               padding: 1rem;
-              width: 2rem;
-              height: 2rem;
+              width: 35px;
+              height: 35px;
             `}
             onClick={redirectNewContact}
           />

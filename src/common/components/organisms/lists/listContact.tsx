@@ -25,6 +25,7 @@ const ListContacts = () => {
 
   const [textSearch, setTextSearch] = useState<string>("");
   const [debounce, setDebounce] = useState<string>("");
+  const [tempDataSearch, setTempDataSearch] = useState<Contact[]>([]);
 
   const [isOpenToastFetchData, setIsOpenToastFetchData] = useState<boolean>(false);
   const [_, setToastsuccessFetchData] = useState<boolean>(false);
@@ -89,9 +90,15 @@ const ListContacts = () => {
       setIsOpenToastFetchData(true);
       setLoadingData(false);
     } else if (data) {
-      setContactListData(debounce ? [...data.contact] : [...contactListData, ...data.contact]);
+      setContactListData(debounce || tempDataSearch.length > 0 ? [...data.contact] : [...contactListData, ...data.contact]);
 
-      if (debounce) setSkip(0);
+      if (debounce) {
+        setTempDataSearch([...data.contact]);
+        setSkip(0);
+      } else {
+        setTempDataSearch([]);
+      }
+
       setLoadingData(false);
     }
   }, [data, error, skip, debounce]);
@@ -172,7 +179,7 @@ const ListContacts = () => {
                 line-height: 2.2rem;
               `}
             >
-              {InitialFirstLastName(contact.first_name, contact.last_name)}
+              {InitialFirstLastName(contact.first_name as string, contact.last_name as string)}
             </div>
             <p
               className={css`
