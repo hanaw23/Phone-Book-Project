@@ -88,11 +88,11 @@ const ListContacts = () => {
       });
 
       if (scrollContactRef.current) observer.observe(scrollContactRef.current);
-      if (scrollElementVisible && data.contact.length !== 0) {
+      if (scrollElementVisible && data && data.contact.length !== 0) {
         setSkip(skip + take);
       }
     }
-  }, [scrollElementVisible, loadingData]);
+  }, [scrollElementVisible, loadingData, data, skip]);
 
   useEffect(() => {
     setLoadingData(true);
