@@ -6,6 +6,7 @@ import { css } from "@emotion/css";
 import Toast from "@/common/components/organisms/toast";
 import InputComponent from "@/common/components/atoms/input";
 import ButtonComponent from "@/common/components/atoms/button";
+import InitialFirstLastName from "@/common/utils/initialName";
 
 import { queryGetContactList } from "@/gql/graphql";
 import { Contact } from "@/graphql/graphql";
@@ -74,9 +75,6 @@ const ListContacts = () => {
     }
   }, [data, error, skip, debounce]);
 
-  const getInitialFirstLastName = (firstName: string, lastName: string) => {
-    return [firstName[0], lastName[0]].join("").toUpperCase();
-  };
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);
   };
@@ -153,7 +151,7 @@ const ListContacts = () => {
                 line-height: 2.2rem;
               `}
             >
-              {getInitialFirstLastName(contact.first_name, contact.last_name)}
+              {InitialFirstLastName(contact.first_name, contact.last_name)}
             </div>
             <p
               className={css`

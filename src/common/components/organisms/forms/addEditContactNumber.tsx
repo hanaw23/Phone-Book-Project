@@ -1,4 +1,4 @@
-import { ChangeEvent, SetStateAction, useState, useEffect, useMemo, use } from "react";
+import { ChangeEvent, SetStateAction, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
@@ -8,6 +8,7 @@ import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icon
 import Toast from "@/common/components/organisms/toast";
 import ButtonComponent from "@/common/components/atoms/button";
 import InputComponent from "@/common/components/atoms/input";
+import InitialFirstLastName from "@/common/utils/initialName";
 
 import { Contact, Phone_Insert_Input } from "@/graphql/graphql";
 import { mutationAddContactWithPhones, mutationAddNumberToContact, mutationEditContactById, mutationEditPhoneNumber } from "@/gql/graphql";
@@ -65,11 +66,6 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
       );
     }
   }, [props.contactData]);
-
-  const getInitialFirstLastName = (firstName: string, lastName: string) => {
-    if (!firstName || !lastName) return "";
-    return [firstName[0], lastName[0]].join("").toUpperCase();
-  };
 
   const handleAddMorePhones = () => {
     setPhoneNumbers((current) => [...current, { id: current.length + 1, number: "" }]);
@@ -313,7 +309,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                 background-color: #bfbfbf;
               `}
             >
-              {getInitialFirstLastName(firstName as string, lastName as string)}
+              {InitialFirstLastName(firstName as string, lastName as string)}
             </div>
           )}
         </div>
@@ -345,8 +341,8 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             required={true}
             value={firstName as string}
             componentClassName=" background-color: transparent;"
-            colorLabel={isValidFirstName ? "white" : "#BF2B0A"}
-            border={isValidFirstName ? "none" : "1px solid red"}
+            colorLabel={isValidFirstName && isValidFirstNameChar ? "white" : "#BF2B0A"}
+            border={isValidFirstName && isValidFirstNameChar ? "none" : "1px solid red"}
             onChange={(e: { target: { value: SetStateAction<string> } }) => setFirstName(e.target.value as string)}
           />
           {!isValidFirstName && <WarningMessage message="First name cannot be empty" />}
@@ -357,8 +353,8 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             placeholder="Type last name"
             required={true}
             value={lastName as string}
-            colorLabel={isValidLastName ? "white" : "#BF2B0A"}
-            border={isValidLastName ? "none" : "1px solid red"}
+            colorLabel={isValidLastName && isValidLastName ? "white" : "#BF2B0A"}
+            border={isValidLastName && isValidLastName ? "none" : "1px solid red"}
             componentClassName="margin-top: 10px; background-color: transparent;"
             onChange={(e: { target: { value: SetStateAction<string> } }) => setLastName(e.target.value as string)}
           />
