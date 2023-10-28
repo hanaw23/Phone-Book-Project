@@ -2,6 +2,8 @@ import { useQuery } from "@apollo/client";
 import { useEffect, useState, useRef, SetStateAction } from "react";
 import { useRouter } from "next/router";
 import { css } from "@emotion/css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 import Toast from "@/common/components/organisms/toast";
 import InputComponent from "@/common/components/atoms/input";
@@ -21,6 +23,9 @@ const ListContacts = () => {
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const scrollContactRef = useRef<HTMLDivElement>(null);
   const [scrollElementVisible, setScrollElementVisible] = useState<boolean>(false);
+
+  const [contactFavoriteList, setContactFavoriteList] = useState<Contact[]>([]);
+  const [hideFavoriteList, setHideFavoriteList] = useState<boolean>(false);
 
   const [textSearch, setTextSearch] = useState<string>("");
   const [debounce, setDebounce] = useState<string>("");
@@ -59,6 +64,13 @@ const ListContacts = () => {
   // === FUNCTIONS ===
   // onMounted
   useEffect(() => {
+    const dataContactFavorite = window.localStorage.getItem("CONTACT_FAVORITE_LIST");
+    if (dataContactFavorite) {
+      setContactFavoriteList([...JSON.parse(dataContactFavorite as string)]);
+    }
+  }, []);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setDebounce(textSearch);
     }, 500);
@@ -87,29 +99,22 @@ const ListContacts = () => {
     if (error) {
       setToastsuccessFetchData(false);
       setIsOpenToastFetchData(true);
-      setLoadingData(false);
     } else if (data) {
       setContactListData(debounce || tempDataSearch.length > 0 ? [...data.contact] : [...contactListData, ...data.contact]);
 
       if (debounce) {
         setTempDataSearch([...data.contact]);
         setSkip(0);
+        setHideFavoriteList(true);
       } else {
         setTempDataSearch([]);
+        setHideFavoriteList(false);
       }
 
       window.localStorage.setItem("CONTACT_LIST", JSON.stringify(contactListData));
-
-      setLoadingData(false);
     }
+    setLoadingData(false);
   }, [data, error, skip, debounce]);
-
-  useEffect(() => {
-    const data = window.localStorage.getItem("CONTACT_LIST");
-    if (data) {
-      setContactListData(JSON.parse(data));
-    }
-  }, []);
 
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);
@@ -157,12 +162,82 @@ const ListContacts = () => {
         </div>
       </div>
 
-      {/* List Contacs */}
-      <div
-        className={css`
-          margin-top: 6.5rem;
-        `}
-      >
+      {/* List Favorite Contacts */}
+      {contactFavoriteList.length > 0 && !hideFavoriteList && (
+        <div
+          className={css`
+            margin-top: 6.5rem;
+          `}
+        >
+          {contactFavoriteList.map((favorite, index) => (
+            <div
+              key={index}
+              className={css`
+                display: flex;
+                justify-content: space-between;
+                gap: 1rem;
+                width: 100%;
+                border-bottom: 1px solid #bfbfbf;
+                padding: 1rem;
+                cursor: pointer;
+              `}
+              onClick={() => redirectToDetailContact(favorite.id)}
+            >
+              <div
+                className={css`
+                  display: flex;
+                  gap: 1rem;
+                  margin-bottom: 4px;
+                `}
+              >
+                <div
+                  className={css`
+                    border: 1px solid #bfbfbf;
+                    border-radius: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    text-align: center;
+                    line-height: 2.2rem;
+                  `}
+                >
+                  {InitialFirstLastName(favorite.first_name as string, favorite.last_name as string)}
+                </div>
+                <p
+                  className={css`
+                    line-height: 2.2rem;
+                  `}
+                >
+                  {favorite.first_name} {favorite.last_name}
+                </p>
+              </div>
+              <FontAwesomeIcon
+                icon={faStar}
+                className={css`
+                  margin-top: 0.5rem;
+                  color: yellow;
+                  background-color: transparent;
+                `}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {contactFavoriteList.length === 0 && (
+        <div
+          className={css`
+            margin-top: 7.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+          `}
+        >
+          No Contact Favorite
+        </div>
+      )}
+
+      {/* List Contacts */}
+      <div>
         {contactListData.map((contact, index) => (
           <>
             {contactListData[index - 1] && contactListData[index - 1].first_name[0].toUpperCase() !== contact.first_name[0].toUpperCase() && (
@@ -187,7 +262,7 @@ const ListContacts = () => {
                   padding-top: 2px;
                   padding-bottom: 2px;
                   background-color: #bfbfbf;
-                  margin-top: 10px;
+                  margin-top: -8px;
                   color: #4c4a4a;
                   font-weight: bold;
                 `}

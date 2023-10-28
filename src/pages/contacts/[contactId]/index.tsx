@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faStar } from "@fortawesome/free-solid-svg-icons";
 
 import ButtonComponent from "@/common/components/atoms/button";
 import DeleteContactConfirmation from "@/common/components/organisms/confirmations/deleteContactNumber";
@@ -14,6 +14,7 @@ import InitialFirstLastName from "@/common/utils/initialName";
 import { ContactContext } from "@/context/detailContactContext";
 import { queryGetContactDetailById, mutationDeleteContactById } from "@/gql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
+import { Contact } from "@/graphql/graphql";
 
 const DetailContact = () => {
   const router = useRouter();
@@ -29,6 +30,9 @@ const DetailContact = () => {
 
   // === VARIABLES ===
   const { contactDetail, setContactDetail } = useContext(ContactContext);
+
+  const [contactFavoriteList, setContactFavoriteList] = useState<Contact[]>([]);
+  const [isOpenToastAddToFavorite, setIsOpenToastAddToFavorite] = useState<boolean>(false);
 
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenToast, setIsOpenToast] = useState<boolean>(false);
@@ -46,6 +50,28 @@ const DetailContact = () => {
       setContactDetail!(data.contact_by_pk);
     }
   }, [contactDetail, data, error, setContactDetail]);
+
+  useEffect(() => {
+    const dataContactFavorite = window.localStorage.getItem("CONTACT_FAVORITE_LIST");
+    if (dataContactFavorite) {
+      setContactFavoriteList([...JSON.parse(dataContactFavorite as string)]);
+    }
+    const findContactById = contactFavoriteList.find((contact: Contact) => contact.id === contactDetail?.id);
+  }, []);
+
+  const handleAddFavoriteContact = () => {
+    if (!contactDetail) return;
+    let newContactFavoriteList: Contact[] = [];
+    if (contactFavoriteList.length > 0) {
+      newContactFavoriteList = [...contactFavoriteList, contactDetail];
+    } else {
+      newContactFavoriteList = [contactDetail];
+    }
+
+    window.localStorage.setItem("CONTACT_FAVORITE_LIST", JSON.stringify(newContactFavoriteList));
+
+    setIsOpenToastAddToFavorite(true);
+  };
 
   // Submit Delete Contact
   const submitDeleteContact = async () => {
@@ -77,7 +103,11 @@ const DetailContact = () => {
   };
 
   return (
-    <>
+    <div
+      className={css`
+        overflow-y: auto;
+      `}
+    >
       {contactDetail && (
         <div>
           <div
@@ -175,16 +205,45 @@ const DetailContact = () => {
 
             <div
               className={css`
-                margin-top: 1rem;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                margin-top: 3rem;
                 margin-left: 1rem;
                 margin-right: 1rem;
               `}
             >
-              <ButtonComponent label="Delete Contact" backgroundColor="#4c4a4a" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={openDeleteModal} />
+              {/* Delete */}
+              <div>
+                <ButtonComponent label="Delete Contact" backgroundColor="#4c4a4a" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={openDeleteModal} />
+              </div>
+              {/* Add to favorite */}
+
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: row;
+                  justify-content: space-between;
+                  background-color: #f48817;
+                  border-radius: 5px;
+                `}
+              >
+                <ButtonComponent label="Add To Favorite" backgroundColor="transparent" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={handleAddFavoriteContact} />
+                <FontAwesomeIcon
+                  icon={faStar}
+                  className={css`
+                    color: white;
+                    margin-right: 10px;
+                    margin-top: 7px;
+                    background-color: transparent;
+                  `}
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
+
       {/* Delete Confirmation */}
       <Modal
         isOpen={isOpenModal}
@@ -202,7 +261,9 @@ const DetailContact = () => {
       />
       {/* Toast Handle Error Fetch Data */}
       <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch contact !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
-    </>
+      {/* Toast Handle Success Add To Favorite */}
+      <Toast isOpen={isOpenToastAddToFavorite} summary={"Success"} detail={"Success add contact to favorite"} severity={SeverityToast.SUCCESS} close={() => setIsOpenToastAddToFavorite(false)} />
+    </div>
   );
 };
 
