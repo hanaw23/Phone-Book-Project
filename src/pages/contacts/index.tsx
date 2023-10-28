@@ -3,9 +3,8 @@ import { useState } from "react";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-
-import ListContact from "../../common/components/organisms/lists/listContact";
-import InputComponent from "../../common/components/atoms/input";
+import ListContact from "@/common/components/organisms/lists/listContact";
+import InputComponent from "@/common/components/atoms/input";
 
 const Contacts = () => {
   const router = useRouter();
@@ -51,7 +50,7 @@ const Contacts = () => {
           >
             Contacts
           </h1>
-          <InputComponent label="" placeholder="Search..." componentClassName="width: 100%; background-color: transparent;" value={firstNameSearch} iconPrefix={true} onChange={handleSearch} />
+          <InputComponent label="" placeholder="Search..." componentClassName="width: 100%; background-color: transparent;" border="none" value={firstNameSearch} iconPrefix={true} onChange={handleSearch} />
         </div>
       </div>
 

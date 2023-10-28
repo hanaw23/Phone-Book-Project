@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-import { type ButtonComponentProps } from "../../lib/interface/atoms/button";
+import { type ButtonComponentProps } from "@/interface/atoms/button.interface";
 
 // VARIABLES
 const ButtonComponent = (props: ButtonComponentProps) => {

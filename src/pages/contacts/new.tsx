@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
-
-import AddEditContactNumber from "../../common/components/organisms/forms/contacs/addEditContactNumber";
+import AddEditContactNumber from "@/common/components/organisms/forms/addEditContactNumber";
 
 const NewContact = () => {
   const router = useRouter();
@@ -13,7 +12,7 @@ const NewContact = () => {
   //   === HTML ===
   return (
     <>
-      <AddEditContactNumber isEdit={false} cancel={cancelAddNew} title="New Contacs" />
+      <AddEditContactNumber isEdit={false} cancel={cancelAddNew} title="New Contacs" contactData={null} />
     </>
   );
 };

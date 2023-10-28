@@ -1,18 +1,44 @@
+import { useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { css } from "@emotion/css";
-import { useRouter } from "next/navigation";
 
-import { contactListData } from "../../../lib/data/contactData";
+import Toast from "@/common/components/organisms/toast";
+
+import { queryGetContactList } from "@/gql/graphql";
+import { Contact } from "@/graphql/graphql";
+import { SeverityToast } from "@/interface/toast.interface";
 
 const ListContacts = () => {
   const router = useRouter();
 
+  // === GRAPHQL ===
+  const { data, error } = useQuery(queryGetContactList);
+
+  // === VARIABLES ===
+  const [take, setTake] = useState(100);
+  const [skip, setSkip] = useState(0);
+  const [contactListData, setContactListData] = useState<Contact[]>([]);
+
+  const [isOpenToastFetchData, setIsOpenToastFetchData] = useState(false);
+  const [_, setToastsuccessFetchData] = useState(false);
+
   //   === FUNCTIONS ===
+  // onMounted
+  useEffect(() => {
+    if (error) {
+      setToastsuccessFetchData(false);
+      setIsOpenToastFetchData(true);
+    } else if (data) {
+      setContactListData([...data.contact]);
+    }
+  }, [data, error]);
+
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
     return [firstName[0], lastName[0]].join("").toUpperCase();
   };
-
   const redirectToDetailContact = (contactId: number) => {
-    router.push(`/contacts/${contactId}`, { scroll: false });
+    router.push(`/contacts/${contactId}`);
   };
 
   return (
@@ -21,9 +47,9 @@ const ListContacts = () => {
         overflow-y: auto;
       `}
     >
-      {contactListData.map((contact) => (
+      {contactListData.map((contact, index) => (
         <div
-          key={contact.id}
+          key={index}
           className={css`
             display: flex;
             gap: 1rem;
@@ -56,6 +82,9 @@ const ListContacts = () => {
           </p>
         </div>
       ))}
+
+      {/* Toast Handle Error Fetch Data */}
+      <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to delete contact !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
     </div>
   );
 };
