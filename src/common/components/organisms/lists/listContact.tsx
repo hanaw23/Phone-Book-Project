@@ -98,9 +98,18 @@ const ListContacts = () => {
         setTempDataSearch([]);
       }
 
+      window.localStorage.setItem("CONTACT_LIST", JSON.stringify(contactListData));
+
       setLoadingData(false);
     }
   }, [data, error, skip, debounce]);
+
+  useEffect(() => {
+    const data = window.localStorage.getItem("CONTACT_LIST");
+    if (data) {
+      setContactListData(JSON.parse(data));
+    }
+  }, []);
 
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);
