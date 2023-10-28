@@ -23,6 +23,7 @@ export const queryGetContactDetailById = gql`
       first_name
       created_at
       phones {
+        id
         number
       }
     }
@@ -37,6 +38,7 @@ export const mutationAddContactWithPhones = gql`
         last_name
         id
         phones {
+          id
           number
         }
       }
@@ -51,6 +53,7 @@ export const mutationEditContactById = gql`
       first_name
       last_name
       phones {
+        id
         number
       }
     }

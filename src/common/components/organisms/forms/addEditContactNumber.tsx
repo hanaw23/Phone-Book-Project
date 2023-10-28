@@ -37,20 +37,24 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   const [addContactNumber] = useMutation(mutationAddContactWithPhones);
 
   // === VARIABLES ===
-  const [firstName, setFirstName] = useState<String>("");
-  const [lastName, setLastName] = useState<String>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>([{ id: 1, number: "" }]);
 
-  const [isValidFirstName, setIsValidFirstName] = useState<Boolean>(true);
-  const [isValidFirstNameChar, setIsValidFirstNameChar] = useState<Boolean>(true);
-  const [isValidLastName, setIsValidLastName] = useState<Boolean>(true);
-  const [isValidLastNameChar, setIsValidLastNameChar] = useState<Boolean>(true);
-  const [isValidPhoneNumbers, setIsValidPhoneNumbers] = useState<Boolean>(true);
+  const [isValidFirstName, setIsValidFirstName] = useState<boolean>(true);
+  const [isValidFirstNameChar, setIsValidFirstNameChar] = useState<boolean>(true);
+  const [isValidLastName, setIsValidLastName] = useState<boolean>(true);
+  const [isValidLastNameChar, setIsValidLastNameChar] = useState<boolean>(true);
+  const [isValidPhoneNumbers, setIsValidPhoneNumbers] = useState<boolean>(true);
 
   const [isOpenToast, setIsOpenToast] = useState(false);
   const [toastSuccess, setToastsuccess] = useState(false);
 
   // === FUNCTIONS ===
+  const getInitialFirstLastName = (firstName: string, lastName: string) => {
+    return [firstName[0], lastName[0]].join("").toUpperCase();
+  };
+
   const handleAddMorePhones = () => {
     setPhoneNumbers((current) => [...current, { id: current.length + 1, phoneNumber: "" }]);
   };
@@ -94,6 +98,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
     return validInputNamePattern.test(value);
   };
 
+  // Submit Function
   const submitAddEditContactNumber = async () => {
     const includeEmptyPhoneNumber = phoneNumbers.filter((phone) => phone.number === "");
     const validFirstNameCharacter = handleCheckSpecialCharacter(firstName as string);
@@ -137,10 +142,6 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
       setIsValidLastName(false);
       setIsValidPhoneNumbers(false);
     }
-  };
-
-  const getInitialFirstLastName = (firstName: string, lastName: string) => {
-    return [firstName[0], lastName[0]].join("").toUpperCase();
   };
 
   //   === HTML ===

@@ -1,6 +1,6 @@
+import { useEffect, useState, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -10,6 +10,7 @@ import DeleteContactConfirmation from "@/common/components/organisms/confirmatio
 import Toast from "@/common/components/organisms/toast";
 import Modal from "@/common/components/organisms/modal";
 
+import { ContactContext } from "@/context/detailContactContext";
 import { queryGetContactDetailById, mutationDeleteContactById } from "@/gql/graphql";
 import { Contact } from "@/graphql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
@@ -27,12 +28,13 @@ const DetailContact = () => {
   const [deleteContactById] = useMutation(mutationDeleteContactById);
 
   // === VARIABLES ===
-  const [contactDetail, setContactDetail] = useState<Contact | null>(null);
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isOpenToast, setIsOpenToast] = useState(false);
-  const [toastSuccess, setToastsuccess] = useState(false);
-  const [isOpenToastFetchData, setIsOpenToastFetchData] = useState(false);
-  const [_, setToastsuccessFetchData] = useState(false);
+  const { contactDetail, setContactDetail } = useContext(ContactContext);
+
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenToast, setIsOpenToast] = useState<boolean>(false);
+  const [toastSuccess, setToastsuccess] = useState<boolean>(false);
+  const [isOpenToastFetchData, setIsOpenToastFetchData] = useState<boolean>(false);
+  const [_, setToastsuccessFetchData] = useState<boolean>(false);
 
   // === FUNCTIONS ===
   // onMounted
@@ -41,9 +43,9 @@ const DetailContact = () => {
       setToastsuccessFetchData(false);
       setIsOpenToastFetchData(true);
     } else if (data) {
-      setContactDetail(data.contact_by_pk as Contact);
+      setContactDetail!(data.contact_by_pk);
     }
-  }, [data, error]);
+  }, [contactDetail, data, error, setContactDetail]);
 
   // Submit Delete Contact
   const submitDeleteContact = async () => {
@@ -64,6 +66,7 @@ const DetailContact = () => {
   };
 
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
+    if (!firstName || !lastName) return "";
     return [firstName[0], lastName[0]].join("").toUpperCase();
   };
 
@@ -150,7 +153,7 @@ const DetailContact = () => {
                   margin-right: 1rem;
                 `}
               >
-                {contactDetail.phones.map((phone, index) => (
+                {contactDetail.phones.map((phone: any, index: number) => (
                   <div
                     key={index}
                     className={css`
