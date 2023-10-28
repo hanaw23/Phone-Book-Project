@@ -19,7 +19,7 @@ const ListContacts = () => {
   const take = 10;
   const [skip, setSkip] = useState(0);
   const [contactListData, setContactListData] = useState<Contact[]>([]);
-
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const scrollContactRef = useRef<HTMLDivElement>(null);
   const [scrollElementVisible, setScrollElementVisible] = useState<boolean>(false);
 
@@ -69,24 +69,30 @@ const ListContacts = () => {
   }, [textSearch]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver((enteries) => {
-      const entry = enteries[0];
-      setScrollElementVisible(() => entry.isIntersecting);
-    });
+    if (!loadingData) {
+      const observer = new IntersectionObserver((enteries) => {
+        const entry = enteries[0];
+        setScrollElementVisible(() => entry.isIntersecting);
+      });
 
-    if (scrollContactRef.current) observer.observe(scrollContactRef.current);
-
-    if (scrollElementVisible) {
-      setSkip(skip + take);
+      if (scrollContactRef.current) observer.observe(scrollContactRef.current);
+      if (scrollElementVisible && data.contact.length !== 0) {
+        setSkip(skip + take);
+      }
     }
-  }, [scrollElementVisible]);
+  }, [scrollElementVisible, loadingData]);
 
   useEffect(() => {
+    setLoadingData(true);
     if (error) {
       setToastsuccessFetchData(false);
       setIsOpenToastFetchData(true);
+      setLoadingData(false);
     } else if (data) {
-      setContactListData([...contactListData, ...data.contact]);
+      setContactListData(debounce ? [...data.contact] : [...contactListData, ...data.contact]);
+
+      if (debounce) setSkip(0);
+      setLoadingData(false);
     }
   }, [data, error, skip, debounce]);
 
@@ -178,7 +184,8 @@ const ListContacts = () => {
           </div>
         ))}
 
-        <div ref={scrollContactRef} />
+        {/* Scroll Element intersection */}
+        {!loadingData && <div ref={scrollContactRef} />}
 
         {/* Toast Handle Error Fetch Data */}
         <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch list contacts !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
