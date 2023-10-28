@@ -1,4 +1,4 @@
-import { ChangeEvent, SetStateAction, useState, useEffect, useMemo } from "react";
+import { ChangeEvent, SetStateAction, useState, useEffect, useMemo, use } from "react";
 import { useRouter } from "next/router";
 import { useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
@@ -10,7 +10,7 @@ import ButtonComponent from "@/common/components/atoms/button";
 import InputComponent from "@/common/components/atoms/input";
 
 import { Contact, Phone_Insert_Input } from "@/graphql/graphql";
-import { mutationAddContactWithPhones, mutationEditContactById, mutationEditPhoneNumber } from "@/gql/graphql";
+import { mutationAddContactWithPhones, mutationAddNumberToContact, mutationEditContactById, mutationEditPhoneNumber } from "@/gql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
 
 const WarningMessage = (props: { message: string }) => {
@@ -36,17 +36,13 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   // === GRAPHQL ===
   const [addContactNumber] = useMutation(mutationAddContactWithPhones);
   const [editContactById] = useMutation(mutationEditContactById);
+  const [addPhoneNumberToContact] = useMutation(mutationAddNumberToContact);
+  const [editPhoneNumberToContact] = useMutation(mutationEditPhoneNumber);
 
   // === VARIABLES ===
-  const [firstName, setFirstName] = useState<string>(props.contactData ? props.contactData.first_name : "");
-  const [lastName, setLastName] = useState<string>(props.contactData ? props.contactData.last_name : "");
-  const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>(
-    props.contactData
-      ? props.contactData.phones.map((phone) => {
-          return { id: phone.id, number: phone.number };
-        })
-      : [{ id: 1, number: "" }]
-  );
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>([{ id: 0, number: "" }]);
 
   const [isValidFirstName, setIsValidFirstName] = useState<boolean>(true);
   const [isValidFirstNameChar, setIsValidFirstNameChar] = useState<boolean>(true);
@@ -58,12 +54,25 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   const [toastSuccess, setToastsuccess] = useState<boolean>(false);
 
   // === FUNCTIONS ===
+  useEffect(() => {
+    if (props.contactData) {
+      setFirstName(props.contactData.first_name);
+      setLastName(props.contactData.last_name);
+      setPhoneNumbers(
+        props.contactData.phones?.map((phone) => {
+          return { id: phone.id, number: phone.number };
+        })
+      );
+    }
+  }, [props.contactData]);
+
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
+    if (!firstName || !lastName) return "";
     return [firstName[0], lastName[0]].join("").toUpperCase();
   };
 
   const handleAddMorePhones = () => {
-    setPhoneNumbers((current) => [...current, { id: current.length + 1, phoneNumber: "" }]);
+    setPhoneNumbers((current) => [...current, { id: current.length + 1, number: "" }]);
   };
   const handleRemovePhones = (id: number) => {
     setPhoneNumbers((current) => {
@@ -95,7 +104,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
     if (handleCheckSpecialCharacter(lastName as string)) {
       setIsValidLastNameChar(true);
     }
-    if (phoneNumbers.length > 0 && phoneNumbers[0].number !== "") {
+    if (phoneNumbers && phoneNumbers.length > 0 && phoneNumbers[0].number !== "") {
       setIsValidPhoneNumbers(true);
     }
   }, [phoneNumbers, firstName, lastName, isValidFirstName, isValidLastName, isValidPhoneNumbers, isValidFirstNameChar, isValidLastNameChar]);
@@ -106,6 +115,61 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   };
 
   // Submit Function
+  const addPhoneNumberToContactMethod = async () => {
+    const isSuccessAdd = [] as boolean[];
+    // add phone number if phone number length is not same with phone number props
+    if (props.contactData?.phones && props.contactData?.phones.length < phoneNumbers.length) {
+      for (let i = 0; i < phoneNumbers.length; i++) {
+        if (i > props.contactData?.phones.length - 1) {
+          const responseAddPhoneNumber = await addPhoneNumberToContact({
+            variables: {
+              contact_id: props.contactData?.id,
+              phone_number: phoneNumbers[i].number,
+            },
+          });
+          if (responseAddPhoneNumber.data) {
+            isSuccessAdd.push(true);
+          } else if (responseAddPhoneNumber.errors) {
+            isSuccessAdd.push(false);
+          }
+        }
+      }
+    }
+
+    return isSuccessAdd;
+  };
+
+  const editPhoneNumberToContactMethod = async () => {
+    const isSuccessEdit = [] as boolean[];
+
+    // edit phone number if phone number length is same with phone number props but have different value
+    if (props.contactData?.phones) {
+      for (let i = 0; i < props.contactData?.phones.length; i++) {
+        for (let n = 0; i < phoneNumbers.length; i++) {
+          if (props.contactData?.phones[i]?.number !== phoneNumbers[n]?.number && props.contactData?.phones[i]?.id === phoneNumbers[n]?.id) {
+            const responseEditPhoneNumber = await editPhoneNumberToContact({
+              variables: {
+                pk_columns: {
+                  number: props.contactData?.phones[i].number,
+                  contact_id: props.contactData?.id,
+                },
+                new_phone_number: phoneNumbers[n].number,
+              },
+            });
+
+            if (responseEditPhoneNumber.data) {
+              isSuccessEdit.push(true);
+            } else if (responseEditPhoneNumber.errors) {
+              isSuccessEdit.push(false);
+            }
+          }
+        }
+      }
+    }
+
+    return isSuccessEdit;
+  };
+
   const submitAddEditContactNumber = async () => {
     const includeEmptyPhoneNumber = phoneNumbers.filter((phone) => phone.number === "");
     const validFirstNameCharacter = handleCheckSpecialCharacter(firstName as string);
@@ -120,25 +184,36 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
 
     if (firstName !== "" && lastName !== "" && includeEmptyPhoneNumber.length === 0 && validFirstNameCharacter && validLastNameCharcter) {
       if (props.isEdit) {
-        const response = await editContactById({
-          variables: {
-            id: props.contactData?.id,
-            _set: {
-              first_name: firstName,
-              last_name: lastName,
+        let isSuccessEdit;
+        const reponseAddPhone = await addPhoneNumberToContactMethod();
+        const reponseEditPhone = await editPhoneNumberToContactMethod();
+
+        if (props.contactData?.first_name !== firstName || props.contactData?.last_name !== lastName) {
+          const response = await editContactById({
+            variables: {
+              id: props.contactData?.id,
+              _set: {
+                first_name: firstName,
+                last_name: lastName,
+              },
             },
-          },
-        });
+          });
 
-        if (response.errors) {
+          if (response.errors) {
+            isSuccessEdit = false;
+          } else if (response.data) {
+            isSuccessEdit = true;
+          }
+        }
+
+        if (reponseAddPhone.includes(false) || reponseEditPhone.includes(false) || isSuccessEdit === false) {
           setToastsuccess(false);
-        } else if (response.data) {
+        } else if (reponseAddPhone.includes(true) || reponseEditPhone.includes(true) || isSuccessEdit === true) {
           setToastsuccess(true);
-          router.push(`/contacts/${response.data.update_contact_by_pk.id}`);
-
-          setPhoneNumbers([{ id: 1, number: "" }]);
+          setPhoneNumbers([{ id: 0, number: "" }]);
           setFirstName("");
           setLastName("");
+          router.push(`/contacts/${props.contactData?.id}`);
         }
       } else {
         const newPhoneNumbers = [] as Phone_Insert_Input[];
@@ -158,7 +233,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           setToastsuccess(true);
           router.push(`/contacts/${response.data.insert_contact.returning[0].id}`);
 
-          setPhoneNumbers([{ id: 1, number: "" }]);
+          setPhoneNumbers([{ id: 0, number: "" }]);
           setFirstName("");
           setLastName("");
         }
@@ -251,7 +326,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           position: absolute;
           margin-top: 3rem;
           background-color: #7caa2d;
-          height: ${phoneNumbers.length > 2 ? "100%" : "62%"};
+          height: ${phoneNumbers && phoneNumbers?.length > 2 ? "100%" : "62%"};
           width: 100%;
           border-radius: 2rem 2rem 0 0;
           margin-bottom: 0;
@@ -290,9 +365,9 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
           {!isValidLastName && <WarningMessage message="Last name cannot be empty" />}
           {!isValidLastNameChar && isValidLastName && <WarningMessage message="Last name cannot contains special character" />}
 
-          {phoneNumbers.map((phone) => (
+          {phoneNumbers?.map((phone, index) => (
             <div
-              key={phone.id}
+              key={index}
               className={css`
                 display: flex;
                 justify-content: space-between;
@@ -307,7 +382,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                 `}
               >
                 <InputComponent
-                  label={`Phone Number ${phone.id}`}
+                  label={`Phone Number ${index + 1}`}
                   placeholder="Ex. +62812347xxxx"
                   required={true}
                   value={phone.number as string}
@@ -318,7 +393,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                 />
                 {!isValidPhoneNumbers && <WarningMessage message="Phone number cannot be empty" />}
               </div>
-              {phone.id === 1 && (
+              {index === 0 && (
                 <FontAwesomeIcon
                   icon={faPlus}
                   className={css`
@@ -329,7 +404,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
                   onClick={handleAddMorePhones}
                 />
               )}
-              {phoneNumbers.length > 1 && phone.id !== 1 && (
+              {phoneNumbers.length > 1 && !props.isEdit && index !== 0 && (
                 <FontAwesomeIcon
                   icon={faMinus}
                   className={css`
@@ -349,7 +424,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
       <Toast
         isOpen={isOpenToast}
         summary={toastSuccess ? "Success" : "Error"}
-        detail={toastSuccess ? `Contact is successfully ${props.isEdit ? "updated" : "created"}` : `Failed to ${props.isEdit ? "updat" : "create"} contact !`}
+        detail={toastSuccess ? `Contact is successfully ${props.isEdit ? "updated" : "created"}` : `Failed to ${props.isEdit ? "update" : "create"} contact !`}
         severity={toastSuccess ? SeverityToast.SUCCESS : SeverityToast.ERROR}
         close={() => setIsOpenToast(false)}
       />
