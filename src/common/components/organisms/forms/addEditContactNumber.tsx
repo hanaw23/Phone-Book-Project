@@ -1,6 +1,6 @@
 import { ChangeEvent, SetStateAction, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -11,7 +11,7 @@ import InputComponent from "@/common/components/atoms/input";
 import InitialFirstLastName from "@/common/utils/initialName";
 
 import { Contact, Phone_Insert_Input } from "@/graphql/graphql";
-import { mutationAddContactWithPhones, mutationAddNumberToContact, mutationEditContactById, mutationEditPhoneNumber } from "@/gql/graphql";
+import { mutationAddContactWithPhones, mutationAddNumberToContact, mutationEditContactById, mutationEditPhoneNumber, queryGetContactList } from "@/gql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
 
 const WarningMessage = (props: { message: string }) => {
@@ -34,27 +34,61 @@ const WarningMessage = (props: { message: string }) => {
 const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; title: string; contactData: Contact | null }) => {
   const router = useRouter();
 
-  // === GRAPHQL ===
-  const [addContactNumber] = useMutation(mutationAddContactWithPhones);
-  const [editContactById] = useMutation(mutationEditContactById);
-  const [addPhoneNumberToContact] = useMutation(mutationAddNumberToContact);
-  const [editPhoneNumberToContact] = useMutation(mutationEditPhoneNumber);
-
   // === VARIABLES ===
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>([{ id: 0, number: "" }]);
+  const [debounceFirstName, setDebounceFirstName] = useState<string>("");
+  const [debounceLastName, setDebounceLastName] = useState<string>("");
 
   const [isValidFirstName, setIsValidFirstName] = useState<boolean>(true);
   const [isValidFirstNameChar, setIsValidFirstNameChar] = useState<boolean>(true);
   const [isValidLastName, setIsValidLastName] = useState<boolean>(true);
   const [isValidLastNameChar, setIsValidLastNameChar] = useState<boolean>(true);
   const [isValidPhoneNumbers, setIsValidPhoneNumbers] = useState<boolean>(true);
+  const [isUniqueName, setIsUniqueName] = useState<boolean>(true);
 
   const [isOpenToast, setIsOpenToast] = useState<boolean>(false);
+  const [isOpenToastUniqueName, setIsOpenToastUniqueName] = useState<boolean>(false);
   const [toastSuccess, setToastsuccess] = useState<boolean>(false);
 
+  // === GRAPHQL ===
+  const [addContactNumber] = useMutation(mutationAddContactWithPhones);
+  const [editContactById] = useMutation(mutationEditContactById);
+  const [addPhoneNumberToContact] = useMutation(mutationAddNumberToContact);
+  const [editPhoneNumberToContact] = useMutation(mutationEditPhoneNumber);
+
+  const { data } = useQuery(queryGetContactList, {
+    variables: {
+      where: {
+        _and: [
+          {
+            first_name: {
+              _eq: `${debounceFirstName}`,
+            },
+          },
+          {
+            last_name: {
+              _eq: `${debounceLastName}`,
+            },
+          },
+        ],
+      },
+    },
+  });
+
   // === FUNCTIONS ===
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebounceFirstName(firstName);
+      setDebounceLastName(lastName);
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [firstName, lastName]);
+
   useEffect(() => {
     if (props.contactData) {
       setFirstName(props.contactData.first_name);
@@ -87,6 +121,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
     });
   };
 
+  // Validations
   useEffect(() => {
     if (firstName !== "") {
       setIsValidFirstName(true);
@@ -109,6 +144,14 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
     const validInputNamePattern = /^[A-Za-z0-9_]+$/;
     return validInputNamePattern.test(value);
   };
+
+  useEffect(() => {
+    if (data?.contact.length > 0) {
+      setIsUniqueName(false);
+    } else {
+      setIsUniqueName(true);
+    }
+  }, [data?.contact.length, debounceFirstName, debounceLastName]);
 
   // Submit Function
   const addPhoneNumberToContactMethod = async () => {
@@ -178,7 +221,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
       setIsValidLastNameChar(false);
     }
 
-    if (firstName !== "" && lastName !== "" && includeEmptyPhoneNumber.length === 0 && validFirstNameCharacter && validLastNameCharcter) {
+    if (firstName !== "" && lastName !== "" && includeEmptyPhoneNumber.length === 0 && validFirstNameCharacter && validLastNameCharcter && isUniqueName) {
       if (props.isEdit) {
         let isSuccessEdit;
         const reponseAddPhone = await addPhoneNumberToContactMethod();
@@ -240,6 +283,10 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
       setIsValidFirstName(false);
       setIsValidLastName(false);
       setIsValidPhoneNumbers(false);
+
+      if (!isUniqueName) {
+        setIsOpenToastUniqueName(true);
+      }
     }
   };
 
@@ -424,6 +471,7 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
         severity={toastSuccess ? SeverityToast.SUCCESS : SeverityToast.ERROR}
         close={() => setIsOpenToast(false)}
       />
+      <Toast isOpen={isOpenToastUniqueName} summary={"Warning"} detail={`Contact with name ${firstName} ${lastName} is already exist !`} severity={SeverityToast.WARN} close={() => setIsOpenToastUniqueName(false)} />
     </>
   );
 };
