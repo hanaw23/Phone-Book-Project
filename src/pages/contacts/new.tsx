@@ -12,7 +12,7 @@ const NewContact = () => {
   //   === HTML ===
   return (
     <>
-      <AddEditContactNumber isEdit={false} cancel={cancelAddNew} title="New Contacs" />
+      <AddEditContactNumber isEdit={false} cancel={cancelAddNew} title="New Contacs" contactData={null} />
     </>
   );
 };

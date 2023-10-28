@@ -12,7 +12,6 @@ import Modal from "@/common/components/organisms/modal";
 
 import { ContactContext } from "@/context/detailContactContext";
 import { queryGetContactDetailById, mutationDeleteContactById } from "@/gql/graphql";
-import { Contact } from "@/graphql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
 
 const DetailContact = () => {

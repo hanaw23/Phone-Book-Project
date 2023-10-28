@@ -1,4 +1,4 @@
-import { ChangeEvent, SetStateAction, useState, useEffect } from "react";
+import { ChangeEvent, SetStateAction, useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useMutation } from "@apollo/client";
 import { css } from "@emotion/css";
@@ -9,8 +9,8 @@ import Toast from "@/common/components/organisms/toast";
 import ButtonComponent from "@/common/components/atoms/button";
 import InputComponent from "@/common/components/atoms/input";
 
-import { Phone_Insert_Input } from "@/graphql/graphql";
-import { mutationAddContactWithPhones } from "@/gql/graphql";
+import { Contact, Phone_Insert_Input } from "@/graphql/graphql";
+import { mutationAddContactWithPhones, mutationEditContactById, mutationEditPhoneNumber } from "@/gql/graphql";
 import { SeverityToast } from "@/interface/toast.interface";
 
 const WarningMessage = (props: { message: string }) => {
@@ -30,16 +30,23 @@ const WarningMessage = (props: { message: string }) => {
   );
 };
 
-const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; title: string }) => {
+const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; title: string; contactData: Contact | null }) => {
   const router = useRouter();
 
   // === GRAPHQL ===
   const [addContactNumber] = useMutation(mutationAddContactWithPhones);
+  const [editContactById] = useMutation(mutationEditContactById);
 
   // === VARIABLES ===
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>([{ id: 1, number: "" }]);
+  const [firstName, setFirstName] = useState<string>(props.contactData ? props.contactData.first_name : "");
+  const [lastName, setLastName] = useState<string>(props.contactData ? props.contactData.last_name : "");
+  const [phoneNumbers, setPhoneNumbers] = useState<Phone_Insert_Input[]>(
+    props.contactData
+      ? props.contactData.phones.map((phone) => {
+          return { id: phone.id, number: phone.number };
+        })
+      : [{ id: 1, number: "" }]
+  );
 
   const [isValidFirstName, setIsValidFirstName] = useState<boolean>(true);
   const [isValidFirstNameChar, setIsValidFirstNameChar] = useState<boolean>(true);
@@ -47,8 +54,8 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
   const [isValidLastNameChar, setIsValidLastNameChar] = useState<boolean>(true);
   const [isValidPhoneNumbers, setIsValidPhoneNumbers] = useState<boolean>(true);
 
-  const [isOpenToast, setIsOpenToast] = useState(false);
-  const [toastSuccess, setToastsuccess] = useState(false);
+  const [isOpenToast, setIsOpenToast] = useState<boolean>(false);
+  const [toastSuccess, setToastsuccess] = useState<boolean>(false);
 
   // === FUNCTIONS ===
   const getInitialFirstLastName = (firstName: string, lastName: string) => {
@@ -113,7 +120,26 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
 
     if (firstName !== "" && lastName !== "" && includeEmptyPhoneNumber.length === 0 && validFirstNameCharacter && validLastNameCharcter) {
       if (props.isEdit) {
-        // code for update contact
+        const response = await editContactById({
+          variables: {
+            id: props.contactData?.id,
+            _set: {
+              first_name: firstName,
+              last_name: lastName,
+            },
+          },
+        });
+
+        if (response.errors) {
+          setToastsuccess(false);
+        } else if (response.data) {
+          setToastsuccess(true);
+          router.push(`/contacts/${response.data.update_contact_by_pk.id}`);
+
+          setPhoneNumbers([{ id: 1, number: "" }]);
+          setFirstName("");
+          setLastName("");
+        }
       } else {
         const newPhoneNumbers = [] as Phone_Insert_Input[];
         for (const phone of phoneNumbers) {
@@ -131,11 +157,13 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
         } else if (response.data) {
           setToastsuccess(true);
           router.push(`/contacts/${response.data.insert_contact.returning[0].id}`);
+
+          setPhoneNumbers([{ id: 1, number: "" }]);
+          setFirstName("");
+          setLastName("");
         }
       }
-      setPhoneNumbers([{ id: 1, number: "" }]);
-      setFirstName("");
-      setLastName("");
+
       setIsOpenToast(true);
     } else {
       setIsValidFirstName(false);
