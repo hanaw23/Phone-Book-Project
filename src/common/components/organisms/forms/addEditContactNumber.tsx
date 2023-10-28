@@ -353,8 +353,8 @@ const AddEditContactNumber = (props: { isEdit: boolean; cancel: () => void; titl
             placeholder="Type last name"
             required={true}
             value={lastName as string}
-            colorLabel={isValidLastName && isValidLastName ? "white" : "#BF2B0A"}
-            border={isValidLastName && isValidLastName ? "none" : "1px solid red"}
+            colorLabel={isValidLastName && isValidLastNameChar ? "white" : "#BF2B0A"}
+            border={isValidLastName && isValidLastNameChar ? "none" : "1px solid red"}
             componentClassName="margin-top: 10px; background-color: transparent;"
             onChange={(e: { target: { value: SetStateAction<string> } }) => setLastName(e.target.value as string)}
           />
