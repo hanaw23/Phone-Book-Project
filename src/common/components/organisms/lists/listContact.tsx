@@ -5,7 +5,6 @@ import { css } from "@emotion/css";
 
 import Toast from "@/common/components/organisms/toast";
 import InputComponent from "@/common/components/atoms/input";
-import ButtonComponent from "@/common/components/atoms/button";
 import InitialFirstLastName from "@/common/utils/initialName";
 
 import { queryGetContactList } from "@/gql/graphql";
