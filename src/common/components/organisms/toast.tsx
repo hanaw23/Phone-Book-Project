@@ -36,7 +36,7 @@ const Toast = (props: ToastProps) => {
           className={css`
             position: relative;
             width: 60%;
-            height: 10%;
+            height: 12%;
             margin: 0 0 0 40%;
             background-color: ${severity === SeverityToast.SUCCESS ? "#7caa2d" : severity === SeverityToast.ERROR ? "red" : severity === SeverityToast.WARN ? "#F48817" : "#3A84F4"};
             border-radius: 2px;
