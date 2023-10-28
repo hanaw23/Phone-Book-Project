@@ -152,43 +152,76 @@ const ListContacts = () => {
       {/* List Contacs */}
       <div
         className={css`
-          margin-top: 6rem;
+          margin-top: 6.5rem;
         `}
       >
         {contactListData.map((contact, index) => (
-          <div
-            key={index}
-            className={css`
-              display: flex;
-              gap: 1rem;
-              margin-bottom: 4px;
-              width: 100%;
-              border-bottom: 1px solid #bfbfbf;
-              padding: 1rem;
-              cursor: pointer;
-            `}
-            onClick={() => redirectToDetailContact(contact.id)}
-          >
+          <>
+            {contactListData[index - 1] && contactListData[index - 1].first_name[0].toUpperCase() !== contact.first_name[0].toUpperCase() && (
+              <div
+                className={css`
+                  padding-left: 15px;
+                  padding-top: 2px;
+                  padding-bottom: 2px;
+                  background-color: #bfbfbf;
+                  margin-top: -8px;
+                  color: #4c4a4a;
+                  font-weight: bold;
+                `}
+              >
+                {contact.first_name[0].toUpperCase()}
+              </div>
+            )}
+            {index === 0 && (
+              <div
+                className={css`
+                  padding-left: 15px;
+                  padding-top: 2px;
+                  padding-bottom: 2px;
+                  background-color: #bfbfbf;
+                  margin-top: 10px;
+                  color: #4c4a4a;
+                  font-weight: bold;
+                `}
+              >
+                {contact.first_name[0].toUpperCase()}
+              </div>
+            )}
+
             <div
+              key={index}
               className={css`
-                border: 1px solid #bfbfbf;
-                border-radius: 50%;
-                width: 2.5rem;
-                height: 2.5rem;
-                text-align: center;
-                line-height: 2.2rem;
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 4px;
+                width: 100%;
+                border-bottom: 1px solid #bfbfbf;
+                padding: 1rem;
+                cursor: pointer;
               `}
+              onClick={() => redirectToDetailContact(contact.id)}
             >
-              {InitialFirstLastName(contact.first_name as string, contact.last_name as string)}
+              <div
+                className={css`
+                  border: 1px solid #bfbfbf;
+                  border-radius: 50%;
+                  width: 2.5rem;
+                  height: 2.5rem;
+                  text-align: center;
+                  line-height: 2.2rem;
+                `}
+              >
+                {InitialFirstLastName(contact.first_name as string, contact.last_name as string)}
+              </div>
+              <p
+                className={css`
+                  line-height: 2.2rem;
+                `}
+              >
+                {contact.first_name} {contact.last_name}
+              </p>
             </div>
-            <p
-              className={css`
-                line-height: 2.2rem;
-              `}
-            >
-              {contact.first_name} {contact.last_name}
-            </p>
-          </div>
+          </>
         ))}
 
         {/* Scroll Element intersection */}
