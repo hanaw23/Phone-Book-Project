@@ -62,6 +62,14 @@ const ListContacts = () => {
   });
 
   // === FUNCTIONS ===
+  const filterContactListByFavorite = () => {
+    for (const contact of contactListData) {
+      const findContactById = contactFavoriteList.find((contactFavorite: Contact) => contactFavorite.id === contact.id);
+      if (findContactById) {
+        setContactListData((prev) => prev.filter((contact) => contact.id !== findContactById.id));
+      }
+    }
+  };
   // onMounted
   useEffect(() => {
     const dataContactFavorite = window.localStorage.getItem("CONTACT_FAVORITE_LIST");
@@ -109,6 +117,10 @@ const ListContacts = () => {
       } else {
         setTempDataSearch([]);
         setHideFavoriteList(false);
+      }
+
+      if (contactFavoriteList.length > 0) {
+        filterContactListByFavorite();
       }
 
       window.localStorage.setItem("CONTACT_LIST", JSON.stringify(contactListData));
