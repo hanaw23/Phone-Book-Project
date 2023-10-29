@@ -33,6 +33,7 @@ const DetailContact = () => {
 
   const [contactFavoriteList, setContactFavoriteList] = useState<Contact[]>([]);
   const [isOpenToastAddToFavorite, setIsOpenToastAddToFavorite] = useState<boolean>(false);
+  const [isExisted, setIsExisted] = useState<boolean>(false);
 
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isOpenToast, setIsOpenToast] = useState<boolean>(false);
@@ -56,8 +57,14 @@ const DetailContact = () => {
     if (dataContactFavorite) {
       setContactFavoriteList([...JSON.parse(dataContactFavorite as string)]);
     }
-    const findContactById = contactFavoriteList.find((contact: Contact) => contact.id === contactDetail?.id);
   }, []);
+
+  useEffect(() => {
+    const findContactById = contactFavoriteList.find((contact: Contact) => contact.id === contactDetail?.id);
+    if (findContactById) {
+      setIsExisted(true);
+    }
+  }, [contactFavoriteList]);
 
   const handleAddFavoriteContact = () => {
     if (!contactDetail) return;
@@ -71,6 +78,7 @@ const DetailContact = () => {
     window.localStorage.setItem("CONTACT_FAVORITE_LIST", JSON.stringify(newContactFavoriteList));
 
     setIsOpenToastAddToFavorite(true);
+    redirectToContactList();
   };
 
   // Submit Delete Contact
@@ -99,7 +107,7 @@ const DetailContact = () => {
     router.push(`/contacts/${contactId}/edit`);
   };
   const redirectToContactList = () => {
-    router.push(`/contacts`);
+    router.replace(`/contacts`);
   };
 
   return (
@@ -217,28 +225,30 @@ const DetailContact = () => {
               <div>
                 <ButtonComponent label="Delete Contact" backgroundColor="#4c4a4a" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={openDeleteModal} />
               </div>
-              {/* Add to favorite */}
 
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: row;
-                  justify-content: space-between;
-                  background-color: #f48817;
-                  border-radius: 5px;
-                `}
-              >
-                <ButtonComponent label="Add To Favorite" backgroundColor="transparent" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={handleAddFavoriteContact} />
-                <FontAwesomeIcon
-                  icon={faStar}
+              {/* Add to favorite */}
+              {!isExisted && (
+                <div
                   className={css`
-                    color: white;
-                    margin-right: 10px;
-                    margin-top: 7px;
-                    background-color: transparent;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    background-color: #f48817;
+                    border-radius: 5px;
                   `}
-                />
-              </div>
+                >
+                  <ButtonComponent label="Add To Favorite" backgroundColor="transparent" type="button" borderRadius="5px" fontWeight="bold" color="white" width="100%" padding="10px" onClick={handleAddFavoriteContact} />
+                  <FontAwesomeIcon
+                    icon={faStar}
+                    className={css`
+                      color: white;
+                      margin-right: 10px;
+                      margin-top: 7px;
+                      background-color: transparent;
+                    `}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

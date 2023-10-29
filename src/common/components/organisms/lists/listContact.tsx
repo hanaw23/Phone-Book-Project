@@ -126,7 +126,7 @@ const ListContacts = () => {
       window.localStorage.setItem("CONTACT_LIST", JSON.stringify(contactListData));
     }
     setLoadingData(false);
-  }, [data, error, skip, debounce]);
+  }, [data, error, skip, debounce, contactFavoriteList]);
 
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);
@@ -234,7 +234,7 @@ const ListContacts = () => {
           ))}
         </div>
       )}
-      {contactFavoriteList.length === 0 && (
+      {contactFavoriteList.length === 0 && !hideFavoriteList && (
         <div
           className={css`
             margin-top: 7.5rem;
