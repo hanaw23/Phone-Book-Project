@@ -99,6 +99,7 @@ const ListContacts = () => {
       if (scrollElementVisible && data && data.contact.length !== 0) {
         setSkip(skip + take);
       }
+      scrollElementVisible && observer.disconnect();
     }
   }, [scrollElementVisible, loadingData, data, skip]);
 
