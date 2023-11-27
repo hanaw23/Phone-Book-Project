@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +9,7 @@ const Contacts = () => {
 
   //   === FUNCTIONS ===
   const redirectNewContact = () => {
-    router.push("/contacts/new", { scroll: false });
+    router.push("/contacts/new");
   };
 
   // === HTML ===
