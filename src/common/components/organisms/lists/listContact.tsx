@@ -70,6 +70,7 @@ const ListContacts = () => {
       }
     }
   };
+
   // onMounted
   useEffect(() => {
     const dataContactFavorite = window.localStorage.getItem("CONTACT_FAVORITE_LIST");
@@ -109,22 +110,24 @@ const ListContacts = () => {
       setToastsuccessFetchData(false);
       setIsOpenToastFetchData(true);
     } else if (data) {
-      setContactListData(debounce || tempDataSearch.length > 0 ? [...data.contact] : [...contactListData, ...data.contact]);
+      setContactListData(contactListData.length === 0 ? [...data.contact] : [...contactListData, ...data.contact]);
 
       if (debounce) {
         setTempDataSearch([...data.contact]);
+        setContactListData([...data.contact]);
         setSkip(0);
         setHideFavoriteList(true);
       } else {
-        setTempDataSearch([]);
+        if (tempDataSearch.length > 0) {
+          setContactListData([...data.contact]);
+        }
         setHideFavoriteList(false);
+        setTempDataSearch([]);
       }
 
       if (contactFavoriteList.length > 0) {
         filterContactListByFavorite();
       }
-
-      window.localStorage.setItem("CONTACT_LIST", JSON.stringify(contactListData));
     }
     setLoadingData(false);
   }, [data, error, skip, debounce, contactFavoriteList]);
