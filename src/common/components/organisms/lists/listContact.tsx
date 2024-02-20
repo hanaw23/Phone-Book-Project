@@ -185,9 +185,9 @@ const ListContacts = () => {
             margin-top: 6.5rem;
           `}
         >
-          {contactFavoriteList.map((favorite, index) => (
+          {contactFavoriteList.map((favorite) => (
             <div
-              key={index}
+              key={favorite.id}
               className={css`
                 display: flex;
                 justify-content: space-between;
@@ -253,107 +253,105 @@ const ListContacts = () => {
       )}
 
       {/* List Contacts */}
-      <div>
-        {contactListData.length === 0 ? (
-          <div
-            className={css`
-              margin-top: 50vh;
-              text-align: center;
-              font-weight: semi-bold;
-              font-size: 1rem;
-            `}
-          >
-            No Data
-          </div>
-        ) : (
-          contactListData.map((contact, index) => (
-            <>
-              {contactListData[index - 1] && contactListData[index - 1].first_name[0].toUpperCase() !== contact.first_name[0].toUpperCase() && (
-                <div
-                  className={css`
-                    padding-left: 15px;
-                    padding-top: 2px;
-                    padding-bottom: 2px;
-                    background-color: #bfbfbf;
-                    margin-top: -8px;
-                    color: #4c4a4a;
-                    font-weight: bold;
-                  `}
-                >
-                  {contact.first_name[0].toUpperCase()}
-                </div>
-              )}
-              {index === 0 && (
-                <div
-                  className={css`
-                    padding-left: 15px;
-                    padding-top: ${debounce ? "120px" : "2px"};
-                    padding-bottom: 2px;
-                    background-color: #bfbfbf;
-                    margin-top: -8px;
-                    color: #4c4a4a;
-                    font-weight: bold;
-                  `}
-                >
-                  {contact.first_name[0].toUpperCase()}
-                </div>
-              )}
 
+      {contactListData.length === 0 ? (
+        <div
+          className={css`
+            margin-top: 50vh;
+            text-align: center;
+            font-weight: semi-bold;
+            font-size: 1rem;
+          `}
+        >
+          No Data
+        </div>
+      ) : (
+        contactListData.map((contact, index) => (
+          <div key={contact.id}>
+            {contactListData[index - 1] && contactListData[index - 1].first_name[0].toUpperCase() !== contact.first_name[0].toUpperCase() && (
               <div
-                key={index}
                 className={css`
-                  display: flex;
-                  gap: 1rem;
-                  margin-bottom: 4px;
-                  width: 100%;
-                  border-bottom: 1px solid #bfbfbf;
-                  padding: 1rem;
-                  cursor: pointer;
+                  padding-left: 15px;
+                  padding-top: 2px;
+                  padding-bottom: 2px;
+                  background-color: #bfbfbf;
+                  margin-top: -8px;
+                  color: #4c4a4a;
+                  font-weight: bold;
                 `}
-                onClick={() => redirectToDetailContact(contact.id)}
               >
-                <div
-                  className={css`
-                    border: 1px solid #bfbfbf;
-                    border-radius: 50%;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    text-align: center;
-                    line-height: 2.2rem;
-                  `}
-                >
-                  {InitialFirstLastName(contact.first_name as string, contact.last_name as string)}
-                </div>
-                <p
-                  className={css`
-                    line-height: 2.2rem;
-                  `}
-                >
-                  {contact.first_name} {contact.last_name}
-                </p>
+                {contact.first_name[0].toUpperCase()}
               </div>
-            </>
-          ))
-        )}
-        {loadingData && (
-          <div
-            className={css`
-              margin-top: 50vh;
-              text-align: center;
-              font-weight: semi-bold;
-              font-size: 1rem;
-            `}
-          >
-            Loading...
+            )}
+            {index === 0 && (
+              <div
+                className={css`
+                  padding-left: 15px;
+                  padding-top: ${debounce ? "120px" : "2px"};
+                  padding-bottom: 2px;
+                  background-color: #bfbfbf;
+                  margin-top: -8px;
+                  color: #4c4a4a;
+                  font-weight: bold;
+                `}
+              >
+                {contact.first_name[0].toUpperCase()}
+              </div>
+            )}
+
+            <div
+              className={css`
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 4px;
+                width: 100%;
+                border-bottom: 1px solid #bfbfbf;
+                padding: 1rem;
+                cursor: pointer;
+              `}
+              onClick={() => redirectToDetailContact(contact.id)}
+            >
+              <div
+                className={css`
+                  border: 1px solid #bfbfbf;
+                  border-radius: 50%;
+                  width: 2.5rem;
+                  height: 2.5rem;
+                  text-align: center;
+                  line-height: 2.2rem;
+                `}
+              >
+                {InitialFirstLastName(contact.first_name as string, contact.last_name as string)}
+              </div>
+              <p
+                className={css`
+                  line-height: 2.2rem;
+                `}
+              >
+                {contact.first_name} {contact.last_name}
+              </p>
+            </div>
           </div>
-        )}
+        ))
+      )}
+      {loadingData && (
+        <div
+          className={css`
+            margin-top: 50vh;
+            text-align: center;
+            font-weight: semi-bold;
+            font-size: 1rem;
+          `}
+        >
+          Loading...
+        </div>
+      )}
 
-        {/* Scroll Element intersection */}
-        {!loadingData && <div ref={scrollContactRef} />}
+      {/* Scroll Element intersection */}
+      {!loadingData && <div ref={scrollContactRef} />}
 
-        {/* Toast Handle Error Fetch Data */}
-        <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch list contacts !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
-      </div>
+      {/* Toast Handle Error Fetch Data */}
+      <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch list contacts !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
     </div>
   );
 };
