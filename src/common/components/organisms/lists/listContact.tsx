@@ -22,6 +22,8 @@ const ListContacts = () => {
   const [contactListData, setContactListData] = useState<Contact[]>([]);
   const [loadingData, setLoadingData] = useState<boolean>(true);
 
+  const [scrollYView, setScrollYView] = useState<number>(250);
+
   const [contactFavoriteList, setContactFavoriteList] = useState<Contact[]>([]);
   const [hideFavoriteList, setHideFavoriteList] = useState<boolean>(false);
 
@@ -88,8 +90,9 @@ const ListContacts = () => {
   }, [textSearch]);
 
   const scrollView = useCallback(() => {
-    if (window.scrollY > 250) {
+    if (window.scrollY > scrollYView) {
       setSkip(skip + take);
+      setScrollYView(scrollYView + 250);
     }
   }, []);
 
