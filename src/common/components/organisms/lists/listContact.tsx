@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { useEffect, useState, useRef, SetStateAction } from "react";
+import { useEffect, useState, SetStateAction, useCallback } from "react";
 import { useRouter } from "next/router";
 import { css } from "@emotion/css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,8 +21,6 @@ const ListContacts = () => {
   const [skip, setSkip] = useState(0);
   const [contactListData, setContactListData] = useState<Contact[]>([]);
   const [loadingData, setLoadingData] = useState<boolean>(true);
-  const scrollContactRef = useRef<HTMLDivElement>(null);
-  const [scrollElementVisible, setScrollElementVisible] = useState<boolean>(false);
 
   const [contactFavoriteList, setContactFavoriteList] = useState<Contact[]>([]);
   const [hideFavoriteList, setHideFavoriteList] = useState<boolean>(false);
@@ -89,20 +87,17 @@ const ListContacts = () => {
     };
   }, [textSearch]);
 
-  useEffect(() => {
-    if (!loadingData) {
-      const observer = new IntersectionObserver((enteries) => {
-        const entry = enteries[0];
-        setScrollElementVisible(() => entry.isIntersecting);
-      });
-
-      if (scrollContactRef.current) observer.observe(scrollContactRef.current);
-      if (scrollElementVisible && data && data.contact.length !== 0) {
-        setSkip(skip + take);
-      }
-      scrollElementVisible && observer.disconnect();
+  const scrollView = useCallback(() => {
+    if (window.scrollY > 250) {
+      setSkip(skip + take);
     }
-  }, [scrollElementVisible, loadingData, data, skip]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      window.addEventListener("scroll", scrollView);
+    };
+  }, [scrollView]);
 
   useEffect(() => {
     setLoadingData(true);
@@ -130,7 +125,7 @@ const ListContacts = () => {
       }
     }
     setLoadingData(false);
-  }, [data, error, skip, debounce, contactFavoriteList]);
+  }, [data, error, debounce, contactFavoriteList, router.pathname, skip]);
 
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);
@@ -253,7 +248,6 @@ const ListContacts = () => {
       )}
 
       {/* List Contacts */}
-
       {contactListData.length === 0 ? (
         <div
           className={css`
@@ -346,9 +340,6 @@ const ListContacts = () => {
           Loading...
         </div>
       )}
-
-      {/* Scroll Element intersection */}
-      {!loadingData && <div ref={scrollContactRef} />}
 
       {/* Toast Handle Error Fetch Data */}
       <Toast isOpen={isOpenToastFetchData} summary={"Error"} detail={"Failed to fetch list contacts !"} severity={SeverityToast.ERROR} close={() => setIsOpenToastFetchData(false)} />
