@@ -128,7 +128,7 @@ const ListContacts = () => {
       }
     }
     setLoadingData(false);
-  }, [data, error, debounce, contactFavoriteList, router.pathname, skip]);
+  }, [data, error, debounce, contactFavoriteList, skip]);
 
   const redirectToDetailContact = (contactId: number) => {
     router.push(`/contacts/${contactId}`);

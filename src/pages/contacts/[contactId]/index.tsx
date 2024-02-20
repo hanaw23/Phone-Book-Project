@@ -107,7 +107,7 @@ const DetailContact = () => {
     router.push(`/contacts/${contactId}/edit`);
   };
   const redirectToContactList = () => {
-    router.push(`/contacts`);
+    window.location.assign(`/contacts`);
   };
 
   return (
